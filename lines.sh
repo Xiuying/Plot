@@ -233,9 +233,11 @@ cat <<END >${file}${mid}.r
 if ($ist){
 	install.packages("ggplot2", repo="http://cran.us.r-project.org")
 	install.packages("reshape2", repo="http://cran.us.r-project.org")
+	install.packages("grid", repo="http://cran.us.r-project.org")
 }
 library(ggplot2)
 library(reshape2)
+library(grid)
 
 if(! $melted){
 
@@ -267,6 +269,12 @@ p <- ggplot(data_m, aes(x=$xvariable, y=value, color=variable,
 	group=variable)) + xlab($xlab) + ylab($ylab) + theme_bw() +
 	theme(legend.title=element_blank(),
    	panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+p <- p + theme(axis.ticks.x = element_blank(), legend.key=element_blank()) 
+#legend.background = element_rect(colour='white'))
+
+#legend.background = element_rect(fill = "white"), legend.box=NULL, 
+#legend.margin=unit(0,"cm"))
 
 if (${smooth}){
 	p <- p + stat_smooth(method=${smooth_method}, se=FALSE, size=1)
