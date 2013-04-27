@@ -47,7 +47,7 @@ ${txtbld}OPTIONS${txtrst}:
 		[${txtred}Default variable, which is an inner name, suitable 
 		for data without 'Set' column. For the first example, 
 		'Set' which represents 
-	   	name of each gene Set should be supplied to this [arameter.]${txtrst}]
+	   	name of each gene Set should be supplied to this [parameter.]${txtrst}]
 	-l	Levels for legend variable
 		[${txtred}Default data order,accept a string like
 		"'TP16','TP22','TP23'"  
@@ -239,11 +239,22 @@ if ("${x_level}" != ""){
 p <- ggplot(data_m, aes(factor($xvariable), value)) + xlab($xlab) +
 ylab($ylab)
 
+
 if (${notch}){
+	if (${outlier}){
 	p <- p + geom_boxplot(aes(fill=factor(variable)), notch=TRUE,
-		notchwidth=0.5)
+		notchwidth=0.3, outlier.colour='NA')
+	}else{
+	p <- p + geom_boxplot(aes(fill=factor(variable)), notch=TRUE,
+		notchwidth=0.3)
+	}
 }else {
-	p <- p + geom_boxplot(aes(fill=factor(variable)))
+	if (${outlier}){
+		p <- p + geom_boxplot(aes(fill=factor(variable)),
+		outlier.colour='NA')
+	}else{
+		p <- p + geom_boxplot(aes(fill=factor(variable)))
+	}
 }
 
 p <- p + theme_bw() + theme(legend.title=element_blank(),
@@ -256,8 +267,10 @@ if("$scaleY"){
 }
 
 if(${outlier}){
-	ylim_zoomin <- boxplot.stats(data_m\$value)\$stats[c(1,5)]
-	p <- p + coord_cartesian(ylim = ylim_zoomin*${out_scale})
+	#ylim_zoomin <- boxplot.stats(data_m\$value)\$stats[c(1,5)]
+	stats <- boxplot.stats(data_m\$value)\$stats
+	ylim_zoomin <- c(stats[1]/${out_scale}, stats[5]*${out_scale})
+	p <- p + coord_cartesian(ylim = ylim_zoomin)
 }
 
 
