@@ -247,7 +247,9 @@ if (${notch}){
 }
 
 p <- p + theme_bw() + theme(legend.title=element_blank(),
-	panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+	panel.grid.major = element_blank(), 
+	panel.grid.minor = element_blank(),
+	legend.key=element_blank())
 
 if("$scaleY"){
 	p <- p + $scaleY_x
@@ -255,7 +257,7 @@ if("$scaleY"){
 
 if(${outlier}){
 	ylim_zoomin <- boxplot.stats(data_m\$value)\$stats[c(1,5)]
-	p + coord_cartesian(ylim = ylim_zoomin*${out_scale})
+	p <- p + coord_cartesian(ylim = ylim_zoomin*${out_scale})
 }
 
 
