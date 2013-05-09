@@ -29,6 +29,10 @@ ${txtbld}OPTIONS${txtrst}:
 	-l	The name of each group saved in a file.${bldred}[NECESSARY, 
 		one sample one line separated by tab, unique,
 		the order must be the same as in data file]${txtrst}
+	-L	The position of legend.
+		[${bldred}Default right. Accept top,bottom,left,none,c(0.1,0.8) ${txtrst}]
+	-n	Number of cols for facet_wrap.[${bldred}Default NULL, meaning
+		distribution vertically. Accept a number.${txtrst}]
 	-u	The width of output picture.[${txtred}Default 2000${txtrst}]
 	-v	The height of output picture.[${txtred}Default 2000${txtrst}] 
 	-r	The resolution of output picture.[${txtred}Default NA${txtrst}]
@@ -75,8 +79,10 @@ xcol='white'
 ycol='red'
 xtics='FALSE'
 ytics='FALSE'
+legend_pos='right'
+ncol='NULL'
 
-while getopts "hf:t:u:v:x:y:r:w:l:a:b:k:c:g:s:m:o:e:i:" OPTION
+while getopts "hf:t:u:v:x:y:r:w:l:n:L:a:b:k:c:g:s:m:o:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -110,6 +116,12 @@ do
 			;;
 		l)
 			label=$OPTARG
+			;;
+		L)
+			legend_pos=$OPTARG
+			;;
+		n)
+			ncol=$OPTARG
 			;;
 		a)
 			xtics=$OPTARG
@@ -245,9 +257,9 @@ data.m\$value[data.m\$value < $small] <- 0
 data.m\$value[data.m\$value > $maximum] <- $maximum
 
 print("Prepare ggplot layers.")
-p <- ggplot(data=data.m, aes(x=variable, y=id)) + \
+p <- ggplot(data=data.m, aes(variable, id)) + \
 geom_tile(aes(fill=value)) + \
-facet_grid( .~grp) + xlab(NULL) + ylab(NULL)
+facet_wrap( ~grp, scale="free", ncol=${ncol}) + xlab(NULL) + ylab(NULL)
 
 
 if( "$log" == ''){
@@ -269,6 +281,14 @@ if ("$ytics" == "FALSE"){
 	p <- p + theme(axis.text.y=element_blank())
 }
 
+
+top='top'
+bottom='bottom'
+left='left'
+right='right'
+none='none'
+legend_pos_par <- ${legend_pos}
+p <- p + theme(legend.position=legend_pos_par)
 
 print("Begin plotting.")
 png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
