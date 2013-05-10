@@ -52,6 +52,10 @@ ${txtbld}OPTIONS${txtrst}:
 		[${bldred}Default right. Accept top,bottom,left,none,c(0.1,0.8) ${txtrst}]
 	-S	Parameter for scale in facet_wrap.
 		[${bldred}Default 'free_x'. Accept free,free_y,fixed.${txtrst}]
+	-O	Keep original layout.[${bldred}Default FALSE, which means
+		first row will be the block the bottomest, the last row will
+		be the block the topest. Accept TRUE to retain the first line
+		at top.${txtrst}]
 	-n	Number of cols for facet_wrap.[${bldred}Default NULL, meaning
 		distribution vertically. Accept a number.${txtrst}]
 	-u	The width of output picture.[${txtred}Default 2000${txtrst}]
@@ -104,8 +108,9 @@ legend_pos='right'
 ncol='NULL'
 scale='free_x'
 par=''
+rev_latout='FALSE'
 
-while getopts "hf:t:u:v:x:y:r:w:l:S:p:n:L:a:b:k:c:g:s:m:o:e:i:" OPTION
+while getopts "hf:t:u:v:x:y:r:w:l:O:S:p:n:L:a:b:k:c:g:s:m:o:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -139,6 +144,9 @@ do
 			;;
 		l)
 			label=$OPTARG
+			;;
+		O)
+			rev_latout=$OPTARG
 			;;
 		p)
 			par=$OPTARG
@@ -236,6 +244,15 @@ grp <- rep(label, each=size)
 print("Rename each column to make each one uniqu")
 names(data) <- paste0(rep(label, each=$width), names(data))
 
+data
+
+if (${rev_latout}){
+	rev_c <- rev(rownames(data))
+	data <- data[rev_c,]
+}
+
+data
+
 if ($kclu>1){
 	print("Prepare data for clustering.")
 	if ($group == 0){
@@ -285,6 +302,8 @@ data.m <- subset(data.m, select=c(grp, id, variable, value))
 data.m\$value[data.m\$value < $small] <- 0
 
 data.m\$value[data.m\$value > $maximum] <- $maximum
+
+data.m
 
 print("Prepare ggplot layers.")
 p <- ggplot(data=data.m, aes(variable, id)) + \
