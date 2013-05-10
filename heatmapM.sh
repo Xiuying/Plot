@@ -244,14 +244,11 @@ grp <- rep(label, each=size)
 print("Rename each column to make each one uniqu")
 names(data) <- paste0(rep(label, each=$width), names(data))
 
-data
 
 if (${rev_latout}){
 	rev_c <- rev(rownames(data))
 	data <- data[rev_c,]
 }
-
-data
 
 if ($kclu>1){
 	print("Prepare data for clustering.")
@@ -303,7 +300,6 @@ data.m\$value[data.m\$value < $small] <- 0
 
 data.m\$value[data.m\$value > $maximum] <- $maximum
 
-data.m
 
 print("Prepare ggplot layers.")
 p <- ggplot(data=data.m, aes(variable, id)) + \
