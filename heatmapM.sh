@@ -43,11 +43,15 @@ ${txtbld}OPTIONS${txtrst}:
 	-w	The width of each group.${bldred}[NECESSARY]${txtrst}
 	-a	Display xtics. ${bldred}[Default FALSE]${txtrst}
 	-b	Display ytics. ${bldred}[Default FALSE]${txtrst}
+	-p	Other legal R codes for gggplot2 will be given here.
+		[${txtres}Begin with '+' ${txtrst}]
 	-l	The name of each group saved in a file.${bldred}[NECESSARY, 
 		one sample one line separated by tab, unique,
 		the order must be the same as in data file]${txtrst}
 	-L	The position of legend.
 		[${bldred}Default right. Accept top,bottom,left,none,c(0.1,0.8) ${txtrst}]
+	-S	Parameter for scale in facet_wrap.
+		[${bldred}Default 'free_x'. Accept free,free_y,fixed.${txtrst}]
 	-n	Number of cols for facet_wrap.[${bldred}Default NULL, meaning
 		distribution vertically. Accept a number.${txtrst}]
 	-u	The width of output picture.[${txtred}Default 2000${txtrst}]
@@ -98,8 +102,10 @@ xtics='FALSE'
 ytics='FALSE'
 legend_pos='right'
 ncol='NULL'
+scale='free_x'
+par=''
 
-while getopts "hf:t:u:v:x:y:r:w:l:n:L:a:b:k:c:g:s:m:o:e:i:" OPTION
+while getopts "hf:t:u:v:x:y:r:w:l:S:p:n:L:a:b:k:c:g:s:m:o:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -133,6 +139,12 @@ do
 			;;
 		l)
 			label=$OPTARG
+			;;
+		p)
+			par=$OPTARG
+			;;
+		S)
+			scale=$OPTARG
 			;;
 		L)
 			legend_pos=$OPTARG
@@ -206,6 +218,7 @@ if ($ist){
 }
 library(ggplot2)
 library(reshape2)
+library(grid)
 
 if ($kclu > 1){
 	library(cluster)
@@ -276,7 +289,7 @@ data.m\$value[data.m\$value > $maximum] <- $maximum
 print("Prepare ggplot layers.")
 p <- ggplot(data=data.m, aes(variable, id)) + \
 geom_tile(aes(fill=value)) + \
-facet_wrap( ~grp, scale="free", ncol=${ncol}) + xlab(NULL) + ylab(NULL)
+facet_wrap( ~grp, scale="${scale}", ncol=${ncol}) + xlab(NULL) + ylab(NULL)
 
 
 if( "$log" == ''){
@@ -310,7 +323,7 @@ p <- p + theme(legend.position=legend_pos_par)
 print("Begin plotting.")
 png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
 res=$res)
-p
+p${par}
 dev.off()
 END
 
