@@ -90,6 +90,7 @@ ${txtbld}OPTIONS${txtrst}:
 		For datasets with n < 1000 default is 'loess'. 
 		For datasets with 1000 or more observations defaults to 'gam'.
 		${txtrst}]
+	-B	line size.[${txtred}Accept a number.${txtrst}]
 	-t	Title of picture[${txtred}Default empty title${txtrst}]
 	-x	xlab of picture[${txtred}Default empty xlab${txtrst}]
 	-y	ylab of picture[${txtred}Default empty ylab${txtrst}]
@@ -136,8 +137,9 @@ par=''
 legend_pos='right'
 smooth='FALSE'
 smooth_method='auto'
+line_size=''
 
-while getopts "hf:m:a:A:t:x:l:P:L:y:w:u:r:o:O:s:S:p:z:v:e:i:" OPTION
+while getopts "hf:m:a:A:t:x:l:P:L:y:B:w:u:r:o:O:s:S:p:z:v:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -167,6 +169,9 @@ do
 			;;
 		P)
 			legend_pos=$OPTARG
+			;;
+		B)
+			line_size=$OPTARG
 			;;
 		L)
 			x_level=$OPTARG
@@ -277,9 +282,19 @@ p <- p + theme(axis.ticks.x = element_blank(), legend.key=element_blank())
 #legend.margin=unit(0,"cm"))
 
 if (${smooth}){
-	p <- p + stat_smooth(method=${smooth_method}, se=FALSE, size=1)
+	if ("${line_size}" != ""){
+		p <- p + stat_smooth(method=${smooth_method}, se=FALSE,
+		size=${line_size})
+	}else{
+		p <- p + stat_smooth(method=${smooth_method}, se=FALSE,
+		size=1)
+	}	
 }else{
-	p <- p + geom_line() 
+	if ("${line_size}" != ""){
+		p <- p + geom_line(size=${line_size}) 
+	}else{
+		p <- p + geom_line() 
+	}
 }
 
 if("$scaleY"){
