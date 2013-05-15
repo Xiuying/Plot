@@ -57,7 +57,11 @@ ${txtbld}OPTIONS${txtrst}:
 		be the block the topest. Accept TRUE to retain the first line
 		at top.${txtrst}]
 	-n	Number of cols for facet_wrap.[${bldred}Default NULL, meaning
-		distribution vertically. Accept a number.${txtrst}]
+		distribution vertically. Accept a number. -n and -N one is
+		enough.${txtrst}]
+	-N	Number of rows for facet_wrap.[${bldred}Default NULL, meaning
+		distribution horizentally. Accept a number. -n and -N one is
+		enough.${txtrst}]
 	-u	The width of output picture.[${txtred}Default 2000${txtrst}]
 	-v	The height of output picture.[${txtred}Default 2000${txtrst}] 
 	-r	The resolution of output picture.[${txtred}Default NA${txtrst}]
@@ -106,11 +110,12 @@ xtics='FALSE'
 ytics='FALSE'
 legend_pos='right'
 ncol='NULL'
+nrow='NULL'
 scale='free_x'
 par=''
 rev_latout='FALSE'
 
-while getopts "hf:t:u:v:x:y:r:w:l:O:S:p:n:L:a:b:k:c:g:s:m:o:e:i:" OPTION
+while getopts "hf:t:u:v:x:y:r:w:l:O:S:p:n:N:L:a:b:k:c:g:s:m:o:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -159,6 +164,9 @@ do
 			;;
 		n)
 			ncol=$OPTARG
+			;;
+		N)
+			nrow=$OPTARG
 			;;
 		a)
 			xtics=$OPTARG
@@ -304,7 +312,7 @@ data.m\$value[data.m\$value > $maximum] <- $maximum
 print("Prepare ggplot layers.")
 p <- ggplot(data=data.m, aes(variable, id)) + \
 geom_tile(aes(fill=value)) + \
-facet_wrap( ~grp, scale="${scale}", ncol=${ncol}) + xlab(NULL) + ylab(NULL)
+facet_wrap( ~grp, scale="${scale}", ncol=${ncol}, nrow=${nrow}) + xlab(NULL) + ylab(NULL)
 
 
 if( "$log" == ''){
