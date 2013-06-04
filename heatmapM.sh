@@ -50,6 +50,15 @@ ${txtbld}OPTIONS${txtrst}:
 		the order must be the same as in data file]${txtrst}
 	-L	The position of legend.
 		[${bldred}Default right. Accept top,bottom,left,none,c(0.1,0.8) ${txtrst}]
+	-A	First get log-value, then do other analysis.
+		Accept an R function log2 or log10. You may want to add
+		parameter to -J (scale_add) and -s (small). Every logged value
+		less than -s will be assigned by -J.[Default -s is -Inf and -J
+		is 1. Usually -s should be 0 and -J should be -1.] 
+		${bldred}[Default FALSE]${txtrst}
+	-K	Get log value before or after clustering.
+		${bldred}[Default before, means before. Accept after means
+		after]${txtrst}
 	-S	Parameter for scale in facet_wrap.
 		[${bldred}Default 'free_x'. Accept free,free_y,fixed.${txtrst}]
 	-O	Keep original layout.[${bldred}Default FALSE, which means
@@ -80,6 +89,9 @@ ${txtbld}OPTIONS${txtrst}:
 	-m	The maximum value you want to keep, any number larger willl
 		beforebe taken as the given maximum value.
 		[${bldred}Default Inf, Optional${txtrst}] 
+	-J	When -L is used, the supplied value will be
+		used to substitute all values less than the value given to -s. 
+		[${bldred}Default 1,  usually this one should be -1.${txtrst}]
 	-o	Log transfer ot not.[${bldred}Default no log transfer,
 		accept log or log2 ${txtrst}]
 	-g	Cluster by which group.[${bldred}Default by all group${txtrst}]
@@ -92,6 +104,9 @@ file=''
 title=''
 width=''
 label=''
+logv='FALSE'
+logv_pos='before'
+scale_add=1
 kclu=1
 clu='kmeans'
 group=0
@@ -115,7 +130,7 @@ scale='free_x'
 par=''
 rev_latout='FALSE'
 
-while getopts "hf:t:u:v:x:y:r:w:l:O:S:p:n:N:L:a:b:k:c:g:s:m:o:e:i:" OPTION
+while getopts "hf:t:u:v:x:y:A:J:K:r:w:l:O:S:p:n:N:L:a:b:k:c:g:s:m:o:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -134,6 +149,15 @@ do
 			;;
 		v)
 			vhig=$OPTARG
+			;;
+		A)
+			logv=$OPTARG
+			;;
+		K)
+			logv_pos=$OPTARG
+			;;
+		J)
+			scale_add=$OPTARG
 			;;
 		x)
 			xcol=$OPTARG
@@ -252,6 +276,10 @@ grp <- rep(label, each=size)
 print("Rename each column to make each one uniqu")
 names(data) <- paste0(rep(label, each=$width), names(data))
 
+if ("${logv_pos}" == "before" && "${logv}" != "FALSE"){
+	data <- ${logv}(data)
+	data[data<${small}] = ${scale_add}
+}
 
 if (${rev_latout}){
 	rev_c <- rev(rownames(data))
@@ -289,6 +317,11 @@ if ($kclu>1){
 	rm(data.m1, data.k, data.clara)
 }
 
+
+if ("${logv_pos}" == "after" && "${logv}" != "FALSE"){
+	data <- ${logv}(data)
+	data[data<${small}] = ${scale_add}
+}
 
 idlevel <- as.vector(rownames(data))
 print("Melt data.")
