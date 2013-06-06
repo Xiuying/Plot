@@ -36,7 +36,7 @@ ${txtbld}OPTIONS${txtrst}:
 	-d	Dist method[${bldred}Default "euclidean"${txtrst}]
 		Accept "euclidean", ‘maximum", ‘manhattan",
 		    "canberra", ‘binary,,"
-			"pearson", "correlation", "Spearman" or "kendall".
+			"pearson", "correlation", "spearman" or "kendall".
 	-c	hclust method[${txtred}Default "ward"${txtrst}]
 		Accept "single", "complete", "average", "mcquitty", "median"
 		or "centroid".
@@ -116,7 +116,7 @@ if [ -z $file ]; then
 	exit 1
 fi
 
-midname='.hcluster'
+midname=".hcluster.${dm}.${hm}"
 
 if [ "$scale" = 'TRUE' ]; then
 	midname=${midname}'.scale'
@@ -138,8 +138,9 @@ if ($scale){
 #d <- dist(x, method="$dm")
 #fit <- hclust(d, method="$hm")
 fit <- hcluster(x, method="$dm", link="$hm")
-postscript(file="${file}${midname}.eps", onefile=FALSE, horizontal=FALSE, 
-	paper="special", width=10, height = 12, pointsize=10)
+#postscript(file="${file}${midname}.eps", onefile=FALSE, horizontal=FALSE, 
+#	paper="special", width=10, height = 12, pointsize=10)
+png(file="${file}${midname}.png", width=600, height=900, res=100)
 plot(fit, hang=-1, main="$title", xlab="$xlab", ylab="$ylab")
 if ($num){
 	rect.hclust(fit, k=$num, border="red")
@@ -150,10 +151,10 @@ EOF
 if [ "${execute}" = 'TRUE' ]; then
 	Rscript $file${midname}.r
 	#epstopdf ${file}${midname}.eps
-	if [ $? -eq 0 ]; then
-		convert -density 200 -flatten ${file}${midname}.eps ${file}${midname}.png
+	#if [ $? -eq 0 ]; then
+	#	convert -density 200 -flatten ${file}${midname}.eps ${file}${midname}.png
 		#if [ $num -ne 0 ]; then
 		#	convert -density 200 -flatten ${file}${midname}.${num}.eps ${file}${midname}.${num}.png
 		#fi
-	fi
+	#fi
 fi
