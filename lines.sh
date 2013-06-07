@@ -78,9 +78,10 @@ ${txtbld}OPTIONS${txtrst}:
 		top,bottom,left,none, or c(0.08,0.8).${txtrst}]
 	-L	Levels for x-axis variable, suitable when x-axis is not used
 		as a number. 
-		[${txtred}Default dictionary order,accept a string like
+		[${txtred}Default the dictionary order, accept a string like
 		"'g','a','j','x','s','c','o','u'"  
-	   	This will only be considered when -A is TRUE.${txtrst}]
+	   	This will only be considered when -A is TRUE.
+		${txtrst}]
 	-o	Smooth your data or not.
 		[${txtred}Default FALSE means no smooth. Accept TRUE to smooth
 		lines.${txtrst}]
@@ -109,9 +110,12 @@ ${txtbld}OPTIONS${txtrst}:
 	-w	The width of output picture.[${txtred}Default 800${txtrst}]
 	-u	The height of output picture.[${txtred}Default 800${txtrst}] 
 	-r	The resolution of output picture.[${txtred}Default NA${txtrst}]
-	-z	Is there a header[${bldred}Default TRUE${txtrst}]
-	-e	Execute or not[${bldred}Default TRUE${txtrst}]
-	-i	Install depended packages[${bldred}Default FALSE${txtrst}]
+	-z	Is there a header[${txtred}Default TRUE${txtrst}]
+	-e	Execute or not[${txtred}Default TRUE${txtrst}]
+	-i	Install depended packages[${txtred}Default FALSE${txtrst}]
+
+****** This script is depleted, please use ${bldred}lines.2.sh${txtrst} instead. ***********
+
 EOF
 }
 
@@ -261,6 +265,7 @@ if ("${level}" != ""){
 	level_i <- c(${level})
 	data_m\$variable <- factor(data_m\$variable, levels=level_i)
 }
+
 if (${x_type}){
 	if ("${x_level}" != ""){
 		x_level <- c(${x_level})
