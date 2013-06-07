@@ -313,10 +313,10 @@ p <- p + theme(axis.ticks.x = element_blank(), legend.key=element_blank())
 
 if (${smooth}){
 	if ("${line_size}" != ""){
-		p <- p + stat_smooth(method=${smooth_method}, se=FALSE,
+		p <- p + stat_smooth(method="${smooth_method}", se=FALSE,
 		size=${line_size})
 	}else{
-		p <- p + stat_smooth(method=${smooth_method}, se=FALSE,
+		p <- p + stat_smooth(method="${smooth_method}", se=FALSE,
 		size=${line_size})
 	}	
 }else{
