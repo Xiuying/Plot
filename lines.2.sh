@@ -95,7 +95,11 @@ ${txtbld}OPTIONS${txtrst}:
 		For datasets with n < 1000 default is 'loess'. 
 		For datasets with 1000 or more observations defaults to 'gam'.
 		${txtrst}]
-	-B	line size.[${txtred}Accept a number.${txtrst}]
+	-X	Display xtics. ${bldred}[Default TRUE]${txtrst}
+	-Y	Display ytics. ${bldred}[Default TRUE]${txtrst}
+	-R	Rotation angle for x-axis value(anti clockwise)
+		${bldred}[Default 0]${txtrst}
+	-B	line size.[${txtred}Default 2. Accept a number.${txtrst}]
 	-t	Title of picture[${txtred}Default empty title${txtrst}]
 	-x	xlab of picture[${txtred}Default empty xlab${txtrst}]
 	-y	ylab of picture[${txtred}Default empty ylab${txtrst}]
@@ -142,9 +146,13 @@ par=''
 legend_pos='right'
 smooth='FALSE'
 smooth_method='auto'
-line_size=''
+line_size=2
+xtics='TRUE'
+xtics_angle=0
+ytics='TRUE'
 
-while getopts "hf:m:a:A:t:x:l:P:L:y:B:w:u:r:o:O:s:S:p:z:v:e:i:" OPTION
+
+while getopts "hf:m:a:A:t:x:l:P:L:y:B:X:Y:R:w:u:r:o:O:s:S:p:z:v:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -177,6 +185,15 @@ do
 			;;
 		B)
 			line_size=$OPTARG
+			;;
+		X)
+			xtics=$OPTARG
+			;;
+		R)
+			xtics_angle=$OPTARG
+			;;
+		Y)
+			ytics=$OPTARG
 			;;
 		L)
 			x_level=$OPTARG
@@ -300,7 +317,7 @@ if (${smooth}){
 		size=${line_size})
 	}else{
 		p <- p + stat_smooth(method=${smooth_method}, se=FALSE,
-		size=1)
+		size=${line_size})
 	}	
 }else{
 	if ("${line_size}" != ""){
@@ -314,6 +331,17 @@ if("$scaleY"){
 	p <- p + $scaleY_x
 }
 
+
+if ("$xtics" == "FALSE"){
+	p <- p + theme(axis.text.x=element_blank())
+}else{
+	if (${xtics_angle} != 0){
+	p <- p + theme(axis.text.x=element_text(angle=${xtics_angle},hjust=1))
+	}
+}
+if ("$ytics" == "FALSE"){
+	p <- p + theme(axis.text.y=element_blank())
+}
 
 
 top='top'
