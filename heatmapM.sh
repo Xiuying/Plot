@@ -43,6 +43,8 @@ ${txtbld}OPTIONS${txtrst}:
 	-w	The width of each group.${bldred}[NECESSARY]${txtrst}
 	-a	Display xtics. ${bldred}[Default FALSE]${txtrst}
 	-b	Display ytics. ${bldred}[Default FALSE]${txtrst}
+	-E	Use fixed seed for kmeans or not. ${bldred}[Default TRUE, 
+		accept FALSE]${txtrst}
 	-p	Other legal R codes for gggplot2 will be given here.
 		[${txtres}Begin with '+' ${txtrst}]
 	-l	The name of each group saved in a file.${bldred}[NECESSARY, 
@@ -129,8 +131,9 @@ nrow='NULL'
 scale='free_x'
 par=''
 rev_latout='FALSE'
+fix_seed='FALSE'
 
-while getopts "hf:t:u:v:x:y:A:J:K:r:w:l:O:S:p:n:N:L:a:b:k:c:g:s:m:o:e:i:" OPTION
+while getopts "hf:t:u:v:x:y:A:J:K:r:E:w:l:O:S:p:n:N:L:a:b:k:c:g:s:m:o:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -158,6 +161,9 @@ do
 			;;
 		J)
 			scale_add=$OPTARG
+			;;
+		E)
+			fix_seed=$OPTARG
 			;;
 		x)
 			xcol=$OPTARG
@@ -305,7 +311,10 @@ if ($kclu>1){
 		rm(data.d)
 	}else
 	if ("$clu" == 'kmeans'){
-		data.clara <- kmeans(data.k, $kclu, iter.max = 1000)
+		if (${fix_seed}){
+			set.seed(3)
+		}
+		data.clara <- kmeans(data.k, $kclu, iter.max = 10000)
 		cluster_172 <- data.clara\$cluster
 	}
 	data.m1 <- cbind(cluster=cluster_172, rownames(data))[,1]
