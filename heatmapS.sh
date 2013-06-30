@@ -309,7 +309,9 @@ data <- read.table(file="$file", sep="\t", header=T, row.names=1,
 #names(data) <- paste0(rep(label, each=$width), names(data))
 
 if ("${logv_pos}" == "before" && "${logv}" != "FALSE"){
-	print("${logv} data before clustering.")
+	if (! $quiet){
+		print("${logv} data before clustering.")
+	}
 	data[data==1] <- 1.0001
 	data <- ${logv}(data)
 	data[data<${small}] = ${scale_add}
@@ -466,7 +468,9 @@ if ($kclu>1){
 }
 
 if ("${logv_pos}" == "after" && "${logv}" != "FALSE"){
-	print("${logv} data after clustering.")
+	if (! $quiet){
+		print("${logv} data after clustering.")
+	}
 	data[data==1] <- 1.0001
 	data <- ${logv}(data)
 	data[data<${small}] = ${scale_add}
