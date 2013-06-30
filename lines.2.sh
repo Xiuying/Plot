@@ -99,10 +99,19 @@ ${txtbld}OPTIONS${txtrst}:
 	-Y	Display ytics. ${bldred}[Default TRUE]${txtrst}
 	-R	Rotation angle for x-axis value(anti clockwise)
 		${bldred}[Default 0]${txtrst}
-	-B	line size.[${txtred}Default 2. Accept a number.${txtrst}]
+	-B	line size.[${txtred}Default 1. Accept a number.${txtrst}]
 	-t	Title of picture[${txtred}Default empty title${txtrst}]
 	-x	xlab of picture[${txtred}Default empty xlab${txtrst}]
 	-y	ylab of picture[${txtred}Default empty ylab${txtrst}]
+	-c	Manually set colors for each line.[${txtred}Default FALSE,
+		meaning using ggplot2 default.${txtrst}]
+	-C	Color for each line.[${txtred}When -c is TRUE, str in given
+		format must be supplied, ususlly the number of colors should
+		be equal to the number of lines.
+		"'red','pink','blue','cyan','green','yellow'" or
+		"rgb(255/255,0/255,0/255),rgb(255/255,0/255,255/255),rgb(0/255,0/255,255/255),
+		rgb(0/255,255/255,255/255),rgb(0/255,255/255,0/255),rgb(255/255,255/255,0/255)"
+		${txtrst}]
 	-s	Scale y axis
 		[${txtred}Default null. Accept TRUE. This function is
 		depleted. If the supplied number after -S is not 0, this
@@ -146,13 +155,14 @@ par=''
 legend_pos='right'
 smooth='FALSE'
 smooth_method='auto'
-line_size=2
+line_size=1
 xtics='TRUE'
 xtics_angle=0
 ytics='TRUE'
+color='FALSE'
+color_v=''
 
-
-while getopts "hf:m:a:A:t:x:l:P:L:y:B:X:Y:R:w:u:r:o:O:s:S:p:z:v:e:i:" OPTION
+while getopts "hf:m:a:A:t:x:l:P:L:y:c:C:B:X:Y:R:w:u:r:o:O:s:S:p:z:v:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -185,6 +195,12 @@ do
 			;;
 		B)
 			line_size=$OPTARG
+			;;
+		c)
+			color=$OPTARG
+			;;
+		C)
+			color_v=$OPTARG
 			;;
 		X)
 			xtics=$OPTARG
@@ -331,6 +347,9 @@ if("$scaleY"){
 	p <- p + $scaleY_x
 }
 
+if(${color}){
+	p <- p + scale_color_manual(values=c(${color_v}))
+}
 
 if ("$xtics" == "FALSE"){
 	p <- p + theme(axis.text.x=element_blank())
