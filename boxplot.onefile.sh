@@ -45,9 +45,10 @@ ${txtbld}OPTIONS${txtrst}:
 		${bldred}[Default FALSE, accept TRUE]${txtrst}
 	-a	Name for x-axis variable
 		[${txtred}Default variable, which is an inner name, suitable 
-		for data without 'Set' column. For the first example, 
-		'Set' which represents 
-	   	name of each gene Set should be supplied to this [parameter.]${txtrst}]
+		for data without 'Set' column. For the given example, 
+		'Set' which represents groups of each gene, and should be 
+		supplied to this parameter.
+		${txtrst}]
 	-l	Levels for legend variable
 		[${txtred}Default data order,accept a string like
 		"'TP16','TP22','TP23'"  
@@ -196,11 +197,20 @@ if [ -z $file ]; then
 	exit 1
 fi
 
+midname=''
+
+if test "${outlier}" == "TRUE"; then
+	midname='.noOutlier'
+fi
+if test "${scaleY}" == "TRUE"; then
+	midname=${midname}'.scaleY'
+fi
+
 if test ${y_add} -ne 0; then
 	scaleY="TRUE"
 fi
 
-cat <<END >${file}.r
+cat <<END >${file}${midname}.r
 
 if ($ist){
 	install.packages("ggplot2", repo="http://cran.us.r-project.org")
@@ -287,13 +297,13 @@ p <- p + theme(legend.position=legend_pos_par)
 
 p <- p${par}
 
-png(filename="${file}.png", width=$uwid, height=$vhig,
+png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
 res=$res)
 p
 dev.off()
 END
 
 if [ "$execute" == "TRUE" ]; then
-	Rscript ${file}.r
+	Rscript ${file}${midname}.r
 fi
 
