@@ -131,7 +131,7 @@ nrow='NULL'
 scale='free_x'
 par=''
 rev_latout='FALSE'
-fix_seed='FALSE'
+fix_seed='TRUE'
 
 while getopts "hf:t:u:v:x:y:A:J:K:r:E:w:l:O:S:p:n:N:L:a:b:k:c:g:s:m:o:e:i:" OPTION
 do
@@ -279,7 +279,7 @@ dimD <- dim(data)
 size <- dimD[1] * $width
 print("Prepare group")
 grp <- rep(label, each=size)
-print("Rename each column to make each one uniqu")
+print("Rename each column to make each one unique")
 names(data) <- paste0(rep(label, each=$width), names(data))
 
 if ("${logv_pos}" == "before" && "${logv}" != "FALSE"){
@@ -312,18 +312,19 @@ if ($kclu>1){
 	}else
 	if ("$clu" == 'kmeans'){
 		if (${fix_seed}){
+			print("Fixed seed for kmeans")
 			set.seed(3)
 		}
 		data.clara <- kmeans(data.k, $kclu, iter.max = 10000)
 		cluster_172 <- data.clara\$cluster
 	}
 	data.m1 <- cbind(cluster=cluster_172, rownames(data))[,1]
-	print("Output clustered result")
-	output <- paste("${file}${midname}", "cluster", sep='.')
-	write.table(data.m1, file=output, sep="\t", quote=F, col.names=F)
 	print("Group data by cluster.")
 	data <- data[order(cluster_172),]
 	rm(data.m1, data.k, data.clara)
+	print("Output clustered result")
+	output <- paste("${file}${midname}", "final", sep='.')
+	write.table(data, file=output, sep="\t", quote=F, col.names=F)
 }
 
 
