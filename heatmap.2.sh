@@ -38,6 +38,10 @@ ${txtbld}OPTIONS${txtrst}:
 	-b	Add a vector for break points.[Default heatmap.2 default.
 		Accept '0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.8,1' or 
 		\$(echo \`seq 0 0.05 1\` | sed 's/ /,/g')]
+	-u	The width of pciture.[${txtred}Default 1000${txtrst}]
+	-v	The height of pciture.[${txtred}Default 1000${txtrst}]
+	-R	The resolution of picture.[${txtred}Default NA, system
+		default${txtrst}]
 	-z	Is there a header[${bldred}Default TRUE${txtrst}]
 		Accept FALSE.
 	-e	Execute or not[${bldred}Default TRUE${txtrst}]
@@ -63,7 +67,10 @@ header='TRUE'
 execute='TRUE'
 trace='none'
 den='FALSE'
-while getopts "hf:k:t:x:y:r:c:s:w:b:z:e:a:d:" OPTION
+width=1000
+height=1000
+res='NA'
+while getopts "hf:k:t:x:y:r:c:s:w:u:v:R:b:z:e:a:d:" OPTION
 do
 	case $OPTION in
 		h)
@@ -96,6 +103,15 @@ do
 			;;
 		w)
 			cols=$OPTARG
+			;;
+		u)
+			width=$OPTARG
+			;;
+		v)
+			height=$OPTARG
+			;;
+		R)
+			res=$OPTARG
 			;;
 		b)
 			break_v=$OPTARG
@@ -171,7 +187,8 @@ x <- as.matrix(data1)
 library(gplots)
 #postscript(file="${file}${midname}.eps", onefile=FALSE, horizontal=FALSE, 
 #	paper="special", width=10, height = 12, pointsize=10)
-png(file="${file}${midname}.png", width=2000, height=2000)
+png(file="${file}${midname}.png", width=${width}, height=${height},
+res=${res})
 break_v <- c($break_v)
 if (length(break_v) > 1) {
 
@@ -194,12 +211,14 @@ if [ "${den}" = 'TRUE' ]; then
 		cat <<EOF >>$file${midname}.r
 	#postscript(file="${file}${midname}.rowden.eps", onefile=FALSE, horizontal=FALSE, 
 	#	paper="special", width=10, height = 12, pointsize=10)
-	png(file="${file}${midname}.rowden.png", width=2000, height=2000)
+	png(file="${file}${midname}.rowden.png", width=${width},
+	height=${height}, res=${res})
 	plot(hv\$rowDendrogram)
 	dev.off()
 	#postscript(file="${file}${midname}.colden.eps", onefile=FALSE, horizontal=FALSE, 
 	#	paper="special", width=10, height = 12, pointsize=10)
-	png(file="${file}${midname}.colden.png", width=2000, height=2000)
+	png(file="${file}${midname}.colden.png", width=${width},
+	height=${height}, res=${res})
 	plot(hv\$colDendrogram)
 	dev.off()
 EOF
@@ -207,7 +226,8 @@ EOF
 		cat <<EOF >>$file${midname}.r
 	#postscript(file="${file}${midname}.rowden.eps", onefile=FALSE, horizontal=FALSE, 
 	#	paper="special", width=10, height = 12, pointsize=10)
-	png(file="${file}${midname}.rowden.png", width=2000, height=2000)
+	png(file="${file}${midname}.rowden.png", width=${width},
+	height=${height}, res=${res})
 	plot(hv\$rowDendrogram)
 	dev.off()
 EOF
@@ -215,7 +235,8 @@ EOF
 		cat <<EOF >>$file${midname}.r
 	#postscript(file="${file}${midname}.colden.eps", onefile=FALSE, horizontal=FALSE, 
 	#	paper="special", width=10, height = 12, pointsize=10)
-	png(file="${file}${midname}.colden.png", width=2000, height=2000)
+	png(file="${file}${midname}.colden.png", width=${width},
+	height=${height}, res=${res})
 	plot(hv\$colDendrogram)
 	dev.off()
 EOF
