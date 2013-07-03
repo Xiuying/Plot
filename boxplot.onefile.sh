@@ -68,8 +68,10 @@ ${txtbld}OPTIONS${txtrst}:
 		depleted. If the supplied number after -S is not 0, this
 		parameter is TRUE${txtrst}]
 	-v	If scale is TRUE, give the following
-		scale_y_log10()[default], coord_trans(y="log10"), or other legal
-		#command for ggplot2)${txtrst}]
+		scale_y_log10()[default], coord_trans(y="log10"), 
+		scale_y_continuous(trans=log2_trans()), coord_trans(y="log2"), 
+	   	or other legal
+		command for ggplot2)${txtrst}]
 	-o	Exclude outliers.
 		[${txtred}Exclude outliers or not, default FALSE means not.${txtrst}]
 	-O	The scales for you want to zoom in to exclude outliers.
@@ -78,6 +80,15 @@ ${txtbld}OPTIONS${txtrst}:
 	-S	A number to add if scale is used.
 		[$(txtred)Default 0. If a non-zero number is given, -s is
 		TRUE.${txtrst}]	
+	-c	Manually set colors for each line.[${txtred}Default FALSE,
+		meaning using ggplot2 default.${txtrst}]
+	-C	Color for each line.[${txtred}When -c is TRUE, str in given
+		format must be supplied, ususlly the number of colors should
+		be equal to the number of lines.
+		"'red','pink','blue','cyan','green','yellow'" or
+		"rgb(255/255,0/255,0/255),rgb(255/255,0/255,255/255),rgb(0/255,0/255,255/255),
+		rgb(0/255,255/255,255/255),rgb(0/255,255/255,0/255),rgb(255/255,255/255,0/255)"
+		${txtrst}]
 	-p	Other legal R codes for gggplot2 will be given here.
 		[${txtres}Begin with '+' ${txtrst}]
 	-w	The width of output picture.[${txtred}Default 800${txtrst}]
@@ -112,7 +123,7 @@ outlier='FALSE'
 out_scale=1.05
 legend_pos='right'
 
-while getopts "hf:m:a:t:x:l:P:L:n:y:o:O:w:u:r:s:S:p:z:v:e:i:" OPTION
+while getopts "hf:m:a:t:x:l:P:L:n:y:o:O:w:u:r:s:S:c:C:p:z:v:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -173,6 +184,12 @@ do
 		S)
 			y_add=$OPTARG
 			;;
+		c)
+			color=$OPTARG
+			;;
+		C)
+			color_v=$OPTARG
+			;;
 		v)
 			scaleY_x=$OPTARG
 			;;
@@ -202,22 +219,26 @@ midname=''
 if test "${outlier}" == "TRUE"; then
 	midname='.noOutlier'
 fi
-if test "${scaleY}" == "TRUE"; then
-	midname=${midname}'.scaleY'
-fi
 
 if test ${y_add} -ne 0; then
 	scaleY="TRUE"
 fi
+
+if test "${scaleY}" == "TRUE"; then
+	midname=${midname}'.scaleY'
+fi
+
 
 cat <<END >${file}${midname}.r
 
 if ($ist){
 	install.packages("ggplot2", repo="http://cran.us.r-project.org")
 	install.packages("reshape2", repo="http://cran.us.r-project.org")
+	install.packages("scales", repo="http://cran.us.r-project.org")
 }
 library(ggplot2)
 library(reshape2)
+library(scales)
 
 if(! $melted){
 
@@ -294,6 +315,10 @@ legend_pos_par <- ${legend_pos}
 #if ("${legend_pos}" != "right"){
 p <- p + theme(legend.position=legend_pos_par)
 #}
+
+if($color){
+	p <- p + scale_fill_manual(values=c(${color_v}))
+}
 
 p <- p${par}
 
