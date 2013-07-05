@@ -51,7 +51,10 @@ ${txtbld}OPTIONS${txtrst}:
 	-Z	Use mid-value or not. [${txtred}Default FALSE, which means
 		do not use mid-value. ${txtrst}]
 	-X	The mid use you want to use.[${txtred}Default median value. A
-		number is ok.${txtrst}]
+		number is ok. When -Z is FALSE and -G is TRUE, this value will be 
+		used as a separator point. The program will separate data into
+		two parts, [minimum, midpoint] and [midpoint, minimum]. Each
+		of these parts will be binned to same number of regions.]${txtrst}]
 	-k	Would you like cluster.[${txtred}Default 1 which means no
 		cluster, other positive interger is accepted for executing
 		kmeans cluster, also the parameter represents the number of
@@ -83,13 +86,16 @@ ${txtbld}OPTIONS${txtrst}:
 	-g	Cluster by which group.[${bldred}Default by all group${txtrst}]
 	-G	Use quantile for color distribution. Default 5 color scale
 		for each quantile.[Default FALSE, accept TRUE. Suitable for data range
-		vary large.]
+		vary large. This has high priviority than -Z.]
 	-C	Color list for plot when -G is TRUE.
 		[${bldred}Default 'green','yellow','dark red'.
 		Accept a list of colors each wrapped by '' and totally wrapped
 		by "" ${txtrst}]
 	-O	When -G is TRUE, using given data points as separtor to
-		assign colors. [${bldred}Default -G default]
+		assign colors. [${bldred}Default -G default. Normally you can
+		select a mid-point and give same bins between the minimum and
+		midpoint, the midpoint and maximum.
+		[0,0.2,0.4,0.6,0.8,1,2,4,6,8,10]${txtrst}]
 	-e	Execute or not[${bldred}Default TRUE${txtrst}]
 	-i	Install the required packages[${bldred}Default FALSE${txtrst}]
 EOF
@@ -515,8 +521,15 @@ if($gradient){
 	summary_v <- summary(data.m\$value)
 	break_v <- c($givenSepartor)
 	if (length(break_v) < 3){
-		break_v <- \
-		unique(c(seq(summary_v[1]-0.00000001,summary_v[2],length=8),seq(summary_v[2],summary_v[3],length=13),seq(summary_v[3],summary_v[5],length=25),seq(summary_v[5],summary_v[6],length=40)))
+		if (${mid_value} == Inf){
+			break_v <- \
+			unique(c(seq(summary_v[1]-0.00000001,summary_v[2],length=6),seq(summary_v[2],summary_v[3],length=6),seq(summary_v[3],summary_v[5],length=5),seq(summary_v[5],summary_v[6],length=5)))
+		} else {
+			break_v <- \
+			unique(c(seq(summary_v[1]-0.00000001, ${mid_value},
+			length=10),
+			seq(${mid_value},summary_v[6]+0.0000001,length=10)))
+		}
 	}
 	
 	data.m\$value <- cut(data.m\$value, breaks=break_v,\
