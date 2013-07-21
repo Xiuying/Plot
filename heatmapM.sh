@@ -91,12 +91,28 @@ ${txtbld}OPTIONS${txtrst}:
 	-m	The maximum value you want to keep, any number larger willl
 		beforebe taken as the given maximum value.
 		[${bldred}Default Inf, Optional${txtrst}] 
+	-F	Generate NA value.[${bldred}Assign NA to values in data table equal
+		to given value to get different color representation.${txtrst}]
 	-J	When -L is used, the supplied value will be
 		used to substitute all values less than the value given to -s. 
 		[${bldred}Default 1,  usually this one should be -1.${txtrst}]
 	-o	Log transfer ot not.[${bldred}Default no log transfer,
 		accept log or log2 ${txtrst}]
-	-g	Cluster by which group.[${bldred}Default by all group${txtrst}]
+	-g	Cluster by which group.[${bldred}Default by all group, accept
+		a number like 1,2,3,4 ${txtrst}]
+	-G	Use quantile for color distribution. Default 5 color scale
+		for each quantile.[Default FALSE, accept TRUE. Suitable for data range
+		vary large. This has high priviority than -Z. -X can work when
+		-G is TRUE]
+	-C	Color list for plot when -G is TRUE.
+		[${bldred}Default 'green','yellow','dark red'.
+		Accept a list of colors each wrapped by '' and totally wrapped
+		by "" ${txtrst}]
+	-O	When -G is TRUE, using given data points as separtor to
+		assign colors. [${bldred}Default -G default. Normally you can
+		select a mid-point and give same bins between the minimum and
+		midpoint, the midpoint and maximum.
+		[0,0.2,0.4,0.6,0.8,1,2,4,6,8,10]${txtrst}]
 	-e	Execute or not[${bldred}Default TRUE${txtrst}]
 	-i	Install the required packages[${bldred}Default FALSE${txtrst}]
 EOF
@@ -132,8 +148,14 @@ scale='free_x'
 par=''
 rev_latout='FALSE'
 fix_seed='TRUE'
+gradient='FALSE'
+givenSepartor=''
+gradientC="'green','yellow','red'"
+generateNA='FALSE'
+mid_value_use='FALSE'
+mid_value='Inf'
 
-while getopts "hf:t:u:v:x:y:A:J:K:r:E:w:l:O:S:p:n:N:L:a:b:k:c:g:s:m:o:e:i:" OPTION
+while getopts "hf:t:u:v:x:y:A:J:K:r:E:w:l:O:S:p:n:N:L:a:b:k:c:g:G:C:O:F:s:m:o:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -212,6 +234,18 @@ do
 			;;
 		g)
 			group=$OPTARG
+			;;
+		G)
+			gradient=$OPTARG
+			;;
+		C)
+			gradientC=$OPTARG
+			;;
+		O)
+			givenSepartor=$OPTARG
+			;;
+		F)
+			generateNA=$OPTARG
 			;;
 		s)
 			small=$OPTARG
@@ -296,13 +330,20 @@ if ($kclu>1){
 	print("Prepare data for clustering.")
 	if ($group == 0){
 		data.k <- data
-	}
-	else if ($group > 0){
+		#---------------------
+		#data.k.zero <- data.k[rowSums(data.k)==0,]
+		#rowZero <- nrow(data.k.zero)
+		#data.k <- data.k[rowSums(data.k)!=0,]
+	}else if ($group > 0){
 		start = ($group-1) * $width + 1
 		end = $group * $width
 		data.k <- data[,start:end]
+		#data.k.zero <- data.k[rowSums(data.k)==0,]
+		#rowZero <- nrow(data.k.zero)
+		#data.k <- data.k[rowSums(data.k)!=0,]
 	}
-	data.k <- t(apply(data,1,scale))
+	data.k <- t(apply(data.k,1,scale))
+	data.k[is.na(data.k)] <- 0
 	print("Cluster data.")
 	if ("$clu" == "clara" ){
 		data.d <- t(apply(data.k,1,diff))
@@ -318,6 +359,15 @@ if ($kclu>1){
 		data.clara <- kmeans(data.k, $kclu, iter.max = 10000)
 		cluster_172 <- data.clara\$cluster
 	}
+	#if (rowZero > 0){
+	#	print('Add rows which are all zero')
+	#	data.k\$cluster <- cluster_172
+	#	newcluster <- 0
+	#	cluster_315_for_zero <- c(rep(newcluster,  rowZero))
+	#	data.k.zero\$cluster <- cluster_315_for_zero
+	#	data168 <- rbind(data.k, data.k.zero)
+	#	cluster_172 <- data168\$cluster
+	#}
 	data.m1 <- cbind(cluster=cluster_172, rownames(data))[,1]
 	print("Group data by cluster.")
 	data <- data[order(cluster_172),]
@@ -351,19 +401,73 @@ data.m\$value[data.m\$value < $small] <- 0
 
 data.m\$value[data.m\$value > $maximum] <- $maximum
 
+if("${generateNA}" != "FALSE"){
+	data.m\$value[data.m\$value == ${generateNA}] <- NA
+}
 
 print("Prepare ggplot layers.")
-p <- ggplot(data=data.m, aes(variable, id)) + \
-geom_tile(aes(fill=value)) + \
-facet_wrap( ~grp, scale="${scale}", ncol=${ncol}, nrow=${nrow}) + xlab(NULL) + ylab(NULL)
+#p <- ggplot(data=data.m, aes(variable, id)) + \
+#facet_wrap( ~grp, scale="${scale}", ncol=${ncol}, nrow=${nrow}) + \
+#xlab(NULL) + ylab(NULL)
+
+if($gradient){
+	gradientC <- c(${gradientC})
+	summary_v <- summary(data.m\$value)
+	break_v <- c($givenSepartor)
+	if (length(break_v) < 3){
+		if (${mid_value} == Inf){
+			break_v <- \
+			unique(c(seq(summary_v[1]-0.00000001,summary_v[2],length=6),seq(summary_v[2],summary_v[3],length=6),seq(summary_v[3],summary_v[5],length=5),seq(summary_v[5],summary_v[6],length=5)))
+		} else {
+			break_v <- \
+			unique(c(seq(summary_v[1]-0.00000001, ${mid_value},
+			length=10),
+			seq(${mid_value},summary_v[6]+0.0000001,length=10)))
+		}
+	}
+	
+	data.m\$value <- cut(data.m\$value, breaks=break_v,\
+		labels=break_v[2:length(break_v)])
+
+	break_v=unique(data.m\$value)
+	
+	col <- colorRampPalette(gradientC)(length(break_v))
+	print(col)
+	print(break_v)
+	#p <- p + scale_fill_gradientn(colours = c("$xcol", "$mcol","$ycol"), breaks=break_v, labels=format(break_v))
+	p <- ggplot(data=data.m, aes(variable, id)) + \
+		geom_tile(aes(fill=value)) + scale_fill_manual(values=col)
+	#scale_fill_brewer(palette="PRGn")
+} else {
+	p <- ggplot(data=data.m, aes(variable, id)) + geom_tile(aes(fill=value))
+	if( "$log" == ''){
+		if (${mid_value_use}){
+			if (${mid_value} == Inf){
+				midpoint = median(data.m\$value)
+			}else {
+				midpoint = ${mid_value}
+			}
+			p <- p + scale_fill_gradient2(low="$xcol", mid="$mcol",
+				high="$ycol", midpoint=midpoint)
+		}else {
+			p <- p + scale_fill_gradient(low="$xcol", high="$ycol")
+		}
+	}else {
+		p <- p + scale_fill_gradient(low="$xcol", high="$ycol",
+		trans="$log", name="$log value", na.value="$xcol")
+	}
+} #end the else of gradient 
 
 
-if( "$log" == ''){
-	p <- p + scale_fill_gradient(low="$xcol", high="$ycol")
-}else {
-	p <- p + scale_fill_gradient(low="$xcol", high="$ycol",
-	trans="$log", name="$log value", na.value="$xcol")
-}
+p <- p + facet_wrap( ~grp, scale="${scale}", ncol=${ncol}, nrow=${nrow}) + \
+	xlab(NULL) + ylab(NULL)
+
+#if( "$log" == ''){
+#	p <- p + scale_fill_gradient(low="$xcol", high="$ycol")
+#}else {
+#	p <- p + scale_fill_gradient(low="$xcol", high="$ycol",
+#	trans="$log", name="$log value", na.value="$xcol")
+#}
 
 
 p <- p + theme(axis.ticks=element_blank()) + theme_bw() + 
