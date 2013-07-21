@@ -73,6 +73,8 @@ ${txtbld}OPTIONS${txtrst}:
 	-m	The maximum value you want to keep, any number larger willl
 		be taken as the given maximum value.
 		[${bldred}Default Inf, Optional${txtrst}] 
+	-N	Generate NA value.[${bldred}Assign NA to values in data table equal
+		to given value to get different color representation.${txtrst}]
 	-q	The smallest screen and file output.[Default TRUE] 
 		Accept FALSE, to output each operation and data files.
 	-j	Scale data for picture.[Default FALSE, accept TRUE]
@@ -86,7 +88,8 @@ ${txtbld}OPTIONS${txtrst}:
 	-g	Cluster by which group.[${bldred}Default by all group${txtrst}]
 	-G	Use quantile for color distribution. Default 5 color scale
 		for each quantile.[Default FALSE, accept TRUE. Suitable for data range
-		vary large. This has high priviority than -Z.]
+		vary large. This has high priviority than -Z. -X can work when
+		-G is TRUE]
 	-C	Color list for plot when -G is TRUE.
 		[${bldred}Default 'green','yellow','dark red'.
 		Accept a list of colors each wrapped by '' and totally wrapped
@@ -138,8 +141,9 @@ cvSort='FALSE'
 gradient='FALSE'
 givenSepartor=''
 gradientC="'green','yellow','red'"
+generateNA='FALSE'
 
-while getopts "hf:t:u:v:x:y:M:L:K:X:r:w:l:a:A:b:k:c:d:n:g:s:j:J:m:o:G:C:O:q:e:i:p:Z:z:" OPTION
+while getopts "hf:t:u:v:x:y:M:L:K:X:r:w:l:a:A:b:k:c:d:n:g:s:N:j:J:m:o:G:C:O:q:e:i:p:Z:z:" OPTION
 do
 	case $OPTION in
 		h)
@@ -224,6 +228,9 @@ do
 			;;
 		m)
 			maximum=$OPTARG
+			;;
+		N)
+			generateNA=$OPTARG
 			;;
 		j)
 			scale_op=$OPTARG
@@ -508,12 +515,16 @@ data.m\$value[data.m\$value < $small] <- 0
 
 data.m\$value[data.m\$value > $maximum] <- $maximum
 
+if("${generateNA}" != "FALSE"){
+	data.m\$value[data.m\$value == ${generateNA}] <- NA
+}
+
 if (! $quiet){
 	print("Prepare ggplot layers.")
 }
 
-p <- ggplot(data=data.m, aes(x=variable, y=id)) + \
-geom_tile(aes(fill=value)) + xlab(NULL) + ylab(NULL)
+#p <- ggplot(data=data.m, aes(x=variable, y=id)) + \
+#geom_tile(aes(fill=value)) 
 #facet_grid( .~grp) 
 
 if($gradient){
@@ -542,10 +553,11 @@ if($gradient){
 	print(break_v)
 	#p <- p + scale_fill_gradientn(colours = c("$xcol", "$mcol","$ycol"), breaks=break_v, labels=format(break_v))
 	p <- ggplot(data=data.m, aes(x=variable, y=id)) + \
-	geom_tile(aes(fill=value)) + xlab(NULL) + ylab(NULL) + \
-	scale_fill_manual(values=col)
+	geom_tile(aes(fill=value)) + scale_fill_manual(values=col)
 	#scale_fill_brewer(palette="PRGn")
 } else {
+	p <- ggplot(data=data.m, aes(x=variable, y=id)) + \
+	geom_tile(aes(fill=value)) 
 	if( "$log" == ''){
 		if (${mid_value_use}){
 			if (${mid_value} == Inf){
@@ -566,7 +578,8 @@ if($gradient){
 
 p <- p + theme(axis.ticks=element_blank()) + theme_bw() + 
 	theme(legend.title=element_blank(),
-	panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+	panel.grid.major = element_blank(), 
+	panel.grid.minor = element_blank()) + xlab(NULL) + ylab(NULL)
 
 if ("$xtics" == "FALSE"){
 	p <- p + theme(axis.text.x=element_blank())
