@@ -17,13 +17,13 @@ This script is used to do volcano plot using package ggplo2.
 Input data format like (at least the first 4 columns, do not need to
 be the first 4 in given file. Usually, p-value should be
 -log10(p_value)):
-gene	id	log2fdr	pvalue	significant others
-30   1          0   0     1
-42   1          0   0     1
-45   3          0   0     1
-46   1          0   0     1
-48   2          0   0     1
-49   1          0   0     1
+id	log2fc	-log10(pvalue)	significant others
+1	0   0     1
+1          0   0     1
+3          0   0     1
+1          0   0     1
+2          0   0     1
+1          0   0     1
 
 The parameters for logical variable are either TRUE or FALSE.
 
