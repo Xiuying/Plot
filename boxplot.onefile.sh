@@ -18,24 +18,24 @@ fileformat for -f (suitable for data extracted from one sample, the
 number of columns is unlimited. Column 'Set' is not necessary)
 
 Gene	hmC	expr	Set
-NM_001003918_26622	0	83.1269257376101	1
-NM_001011535_3260	0	0	1
-NM_001012640_14264	0	0	1
-NM_001012640_30427	0	0	1
-NM_001003918_2662217393_30486	0	0	1
-NM_001017393_30504	0	0	1
-NM_001025241_30464	0	0	1
-NM_001017393_30504001025241_30513	0	0	1
+NM_001003918_26622	0	83.1269257376101	TP16
+NM_001011535_3260	0	0	TP16
+NM_001012640_14264	0	0	TP16
+NM_001012640_30427	0	0	TP16
+NM_001003918_2662217393_30486	0	0	TP16
+NM_001017393_30504	0	0	TP16
+NM_001025241_30464	0	0	TP16
+NM_001017393_30504001025241_30513	0	0	TP16
 
 fileformat when -m is true
 #The name "value" and "variable" shoud not be altered.
 #"Set" needs to be the parameter after -a.
 #Actually this format is the melted result of last format.
 value	variable	Set
-0	hmC	1
-1	expr	1
-2	hmC	2
-3	expr	2
+0	hmC	g
+1	expr	g
+2	hmC	a
+3	expr	a
 
 ${txtbld}OPTIONS${txtrst}:
 	-f	Data file (with header line, the first column is the
@@ -51,21 +51,21 @@ ${txtbld}OPTIONS${txtrst}:
 		${txtrst}]
 	-l	Levels for legend variable
 		[${txtred}Default data order,accept a string like
-		"'TP16','TP22','TP23'"  
+		"'TP16','TP22','TP23'" for <variable> column.
 	   	${txtrst}]
 	-P	Legend position[${txtred}Default right. Accept
 		top,bottom,left,none, or c(0.08,0.8).${txtrst}]
 	-L	Levels for x-axis variable
 		[${txtred}Default data order,accept a string like
-		"'g','a','j','x','s','c','o','u'"  
+		"'g','a','j','x','s','c','o','u'" for <Set> column.
 	   	${txtrst}]
 	-n	Using notch or not.${txtred}[Default TRUE]${txtrst}
 	-t	Title of picture[${txtred}Default empty title${txtrst}]
 	-x	xlab of picture[${txtred}Default empty xlab${txtrst}]
 	-y	ylab of picture[${txtred}Default empty ylab${txtrst}]
 	-s	Scale y axis
-		[${txtred}Default null. Accept TRUE. This function is
-		depleted. If the supplied number after -S is not 0, this
+		[${txtred}Default null. Accept TRUE.
+		Also if the supplied number after -S is not 0, this
 		parameter is TRUE${txtrst}]
 	-v	If scale is TRUE, give the following
 		scale_y_log10()[default], coord_trans(y="log10"), 
