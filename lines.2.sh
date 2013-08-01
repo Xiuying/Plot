@@ -124,9 +124,11 @@ ${txtbld}OPTIONS${txtrst}:
 		TRUE.${txtrst}]	
 	-p	Other legal R codes for gggplot2 will be given here.
 		[${txtres}Begin with '+' ${txtrst}]
-	-w	The width of output picture.[${txtred}Default 800${txtrst}]
-	-u	The height of output picture.[${txtred}Default 800${txtrst}] 
-	-r	The resolution of output picture.[${txtred}Default NA${txtrst}]
+	-w	The width of output picture.[${txtred}Default 20${txtrst}]
+	-u	The height of output picture.[${txtred}Default 12${txtrst}] 
+	-E	The type of output figures.[${txtred}Default png, accept
+		eps/ps, tex (pictex), pdf, jpeg, tiff, bmp, svg and wmf)${txtrst}]
+	-r	The resolution of output picture.[${txtred}Default 1000${txtrst}]
 	-z	Is there a header[${bldred}Default TRUE${txtrst}]
 	-e	Execute or not[${bldred}Default TRUE${txtrst}]
 	-i	Install depended packages[${bldred}Default FALSE${txtrst}]
@@ -148,9 +150,10 @@ scaleY_x='scale_y_log10()'
 header='TRUE'
 execute='TRUE'
 ist='FALSE'
-uwid=800
-vhig=800
-res='NA'
+uwid=20
+vhig=12
+res=1000
+ext='png'
 par=''
 legend_pos='right'
 smooth='FALSE'
@@ -162,7 +165,7 @@ ytics='TRUE'
 color='FALSE'
 color_v=''
 
-while getopts "hf:m:a:A:t:x:l:P:L:y:c:C:B:X:Y:R:w:u:r:o:O:s:S:p:z:v:e:i:" OPTION
+while getopts "hf:m:a:A:t:x:l:P:L:y:c:C:B:X:Y:R:w:u:r:o:O:s:S:p:z:v:e:E:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -228,6 +231,9 @@ do
 			;;
 		r)
 			res=$OPTARG
+			;;
+		E)
+			ext=$OPTARG
 			;;
 		o)
 			smooth=$OPTARG
@@ -374,10 +380,14 @@ p <- p + theme(legend.position=legend_pos_par)
 
 p <- p${par}
 
-png(filename="${file}${mid}.png", width=$uwid, height=$vhig,
-res=$res)
-p
-dev.off()
+#png(filename="${file}${mid}.png", width=$uwid, height=$vhig,
+#res=$res)
+
+ggsave(p, filename="${file}${mid}.${ext}", dpi=$res, width=$uwid,
+height=$vhig, units=c("cm"))
+#postscript(file="${file}${midname}.eps", onefile=FALSE, horizontal=FALSE, 
+#paper="special", width=10, height = 12, pointsize=10)
+#dev.off()
 END
 
 if [ "$execute" == "TRUE" ]; then
