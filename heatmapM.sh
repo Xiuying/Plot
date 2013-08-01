@@ -75,9 +75,11 @@ ${txtbld}OPTIONS${txtrst}:
 	-N	Number of rows for facet_wrap.[${bldred}Default NULL, meaning
 		distribution horizentally. Accept a number. -n and -N one is
 		enough.${txtrst}]
-	-u	The width of output picture.[${txtred}Default 2000${txtrst}]
-	-v	The height of output picture.[${txtred}Default 2000${txtrst}] 
-	-r	The resolution of output picture.[${txtred}Default NA${txtrst}]
+	-u	The width of output picture.[${txtred}Default 20${txtrst}]
+	-v	The height of output picture.[${txtred}Default 20${txtrst}] 
+	-E	The type of output figures.[${txtred}Default png, accept
+		eps/ps, tex (pictex), pdf, jpeg, tiff, bmp, svg and wmf)${txtrst}]
+	-r	The resolution of output picture.[${txtred}Default 1000${txtrst}]
 	-x	The color for representing low value.[${txtred}Default white${txtrst}]
 	-y	The color for representing high value.[${txtred}Default
 		red${txtrst}]
@@ -136,9 +138,10 @@ legend='FALSE'
 small="-Inf"
 maximum="Inf"
 log=''
-uwid=2000
-vhig=2000
-res='NA'
+uwid=20
+vhig=12
+res=1000
+ext='png'
 xcol='white'
 ycol='red'
 xtics='FALSE'
@@ -158,7 +161,7 @@ mid_value_use='FALSE'
 mid_value='Inf'
 scale_for_kmeans='FALSE'
 
-while getopts "hf:t:u:v:x:y:A:J:K:r:E:w:l:d:O:S:p:n:N:L:a:b:k:c:g:G:C:O:F:s:m:o:e:i:" OPTION
+while getopts "hf:t:u:v:x:y:E:A:J:K:r:E:w:l:d:O:S:p:n:N:L:a:b:k:c:g:G:C:O:F:s:m:o:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -177,6 +180,9 @@ do
 			;;
 		v)
 			vhig=$OPTARG
+			;;
+		E)
+			ext=$OPTARG
 			;;
 		A)
 			logv=$OPTARG
@@ -504,10 +510,17 @@ none='none'
 legend_pos_par <- ${legend_pos}
 p <- p + theme(legend.position=legend_pos_par)
 
+p <- p${par}
+
+
 print("Begin plotting.")
-png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
-res=$res)
-p${par}
+
+ggsave(p, filename="${file}${mid}.${ext}", dpi=$res, width=$uwid,
+height=$vhig, units=c("cm"))
+
+#png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
+#res=$res)
+#p${par}
 dev.off()
 END
 
