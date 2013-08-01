@@ -39,9 +39,11 @@ ${txtbld}OPTIONS${txtrst}:
 	-K	Get log value before or after clustering.
 		${bldred}[Default before, means before. Accept after means
 		after]${txtrst}
-	-u	The width of output picture.[${txtred}Default 2000${txtrst}]
-	-v	The height of output picture.[${txtred}Default 2000${txtrst}] 
-	-r	The resolution of output picture.[${txtred}Default NA${txtrst}]
+	-u	The width of output picture.[${txtred}Default 20${txtrst}]
+	-v	The height of output picture.[${txtred}Default 20${txtrst}] 
+	-E	The type of output figures.[${txtred}Default png, accept
+		eps/ps, tex (pictex), pdf, jpeg, tiff, bmp, svg and wmf)${txtrst}]
+	-r	The resolution of output picture.[${txtred}Default 1000${txtrst}]
 	-x	The color for representing low value.[${txtred}Default dark
 		green${txtrst}]
 	-y	The color for representing high value.[${txtred}Default
@@ -122,9 +124,10 @@ legend_pos='right'
 small="-Inf"
 maximum="Inf"
 log=''
-uwid=2000
-vhig=2000
-res='NA'
+uwid=20
+vhig=20
+res=1000
+ext='png'
 scale_op='FALSE'
 scale_add=1
 xcol='dark green'
@@ -143,7 +146,7 @@ givenSepartor=''
 gradientC="'green','yellow','red'"
 generateNA='FALSE'
 
-while getopts "hf:t:u:v:x:y:M:L:K:X:r:w:l:a:A:b:k:c:d:n:g:s:N:j:J:m:o:G:C:O:q:e:i:p:Z:z:" OPTION
+while getopts "hf:t:u:v:x:y:M:L:K:X:r:E:w:l:a:A:b:k:c:d:n:g:s:N:j:J:m:o:G:C:O:q:e:i:p:Z:z:" OPTION
 do
 	case $OPTION in
 		h)
@@ -162,6 +165,9 @@ do
 			;;
 		v)
 			vhig=$OPTARG
+			;;
+		E)
+			ext=$OPTARG
 			;;
 		x)
 			xcol=$OPTARG
@@ -606,10 +612,15 @@ p <- p + theme(legend.position=legend_pos_par)
 if (! $quiet){
 	print("Begin plotting.")
 }
-png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
-res=$res)
-p
-dev.off()
+
+
+ggsave(p, filename="${file}${mid}.${ext}", dpi=$res, width=$uwid,
+height=$vhig, units=c("cm"))
+
+#png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
+#res=$res)
+#p
+#dev.off()
 END
 
 if [ "$execute" == "TRUE" ]; then
