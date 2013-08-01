@@ -330,7 +330,7 @@ if($color){
 p <- p${par}
 
 
-ggsave(p, filename="${file}${mid}.${ext}", dpi=$res, width=$uwid,
+ggsave(p, filename="${file}${midname}.${ext}", dpi=$res, width=$uwid,
 height=$vhig, units=c("cm"))
 
 #png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
