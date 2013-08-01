@@ -91,9 +91,11 @@ ${txtbld}OPTIONS${txtrst}:
 		${txtrst}]
 	-p	Other legal R codes for gggplot2 will be given here.
 		[${txtres}Begin with '+' ${txtrst}]
-	-w	The width of output picture.[${txtred}Default 800${txtrst}]
-	-u	The height of output picture.[${txtred}Default 800${txtrst}] 
-	-r	The resolution of output picture.[${txtred}Default NA${txtrst}]
+	-w	The width of output picture.[${txtred}Default 20${txtrst}]
+	-u	The height of output picture.[${txtred}Default 12${txtrst}] 
+	-r	The resolution of output picture.[${txtred}Default 1000${txtrst}]
+	-E	The type of output figures.[${txtred}Default png, accept
+		eps/ps, tex (pictex), pdf, jpeg, tiff, bmp, svg and wmf)${txtrst}]
 	-z	Is there a header[${bldred}Default TRUE${txtrst}]
 	-e	Execute or not[${bldred}Default TRUE${txtrst}]
 	-i	Install depeneded packages[${bldred}Default FALSE${txtrst}]
@@ -114,16 +116,18 @@ scaleY_x='scale_y_log10()'
 header='TRUE'
 execute='TRUE'
 ist='FALSE'
-uwid=800
-vhig=800
-res='NA'
+uwid=20
+vhig=12
+res=1000
 notch='TRUE'
 par=''
 outlier='FALSE'
 out_scale=1.05
 legend_pos='right'
+color='FALSE'
+ext='png'
 
-while getopts "hf:m:a:t:x:l:P:L:n:y:o:O:w:u:r:s:S:c:C:p:z:v:e:i:" OPTION
+while getopts "hf:m:a:t:x:l:P:L:n:y:o:O:w:u:r:E:s:S:c:C:p:z:v:e:i:" OPTION
 do
 	case $OPTION in
 		h)
@@ -171,6 +175,9 @@ do
 			;;
 		r)
 			res=$OPTARG
+			;;
+		E)
+			ext=$OPTARG
 			;;
 		o)
 			outlier=$OPTARG
@@ -322,10 +329,14 @@ if($color){
 
 p <- p${par}
 
-png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
-res=$res)
-p
-dev.off()
+
+ggsave(p, filename="${file}${mid}.${ext}", dpi=$res, width=$uwid,
+height=$vhig, units=c("cm"))
+
+#png(filename="${file}${midname}.png", width=$uwid, height=$vhig,
+#res=$res)
+#p
+#dev.off()
 END
 
 if [ "$execute" == "TRUE" ]; then
